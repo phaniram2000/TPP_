@@ -1,0 +1,62 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.AI;
+using UnityEngine.Events;
+
+public class enemy_target : MonoBehaviour
+{
+    public static target instance;
+    public float health = 50f;
+    public NavMeshAgent nav;
+    public Transform player;
+    public void take_damage(float damage_amount)
+    {
+        health -= damage_amount;
+        if(health == 0)
+        {
+            die();
+        }
+    }
+    public enum enemy
+    {
+        run,idle,die
+    }
+    public enemy myenemy = enemy.idle;
+
+    public void die()
+    {
+        Destroy(gameObject);
+    }
+    public void Update()
+    {
+        switch (myenemy)
+        {
+            case enemy.run:
+                nav.SetDestination(player.transform.position);
+                break;
+            case enemy.idle:
+                nav.SetDestination(this.transform.position);
+                break;
+            case enemy.die:
+                Destroy(gameObject);
+                break;
+            default:
+                break;
+        }
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.CompareTag("Player"))
+        {
+            myenemy = enemy.run;
+        }
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            myenemy = enemy.idle;
+        }
+    }
+}
